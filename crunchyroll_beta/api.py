@@ -267,7 +267,11 @@ class Crunchyroll:
         return NewsFeed(r) if not raw_json else r
 
     def browse(
-        self, sort_by: str = "newly_added", max_results: int = 6, raw_json=False
+        self,
+        sort_by: str = "newly_added",
+        max_results: int = 6,
+        start_value: int = 0,
+        raw_json: bool = False,
     ) -> Optional[List[Panel]]:
         """Browse Crunchyroll catalog
 
@@ -278,6 +282,9 @@ class Crunchyroll:
             max_results (``int``, optional):
                 Number of results to return
                 Default to 6
+            start_value (``int``, optional):
+                Initial number to start with
+                Defaults to 0
 
         Returns:
             ``List``: On success, list of ``Panel`` is returned
@@ -285,7 +292,12 @@ class Crunchyroll:
         r = self._make_request(
             method="GET",
             url=BROWSE_ENDPOINT,
-            params={"sort_by": sort_by, "n": str(max_results), "locale": self.locale},
+            params={
+                "sort_by": sort_by,
+                "n": str(max_results),
+                "locale": self.locale,
+                "start": start_value,
+            },
         )
         return [Panel(panel) for panel in r.get("items")] if not raw_json else r
 
@@ -314,6 +326,7 @@ class Crunchyroll:
                     }
                 )
         return [PlaylistItem(frmt) for frmt in formats]
+
 
     def get_objects(self, object_id: str, raw_json=False) -> Optional[List[Panel]]:
         """Get object
