@@ -1,18 +1,18 @@
-import requests
 import re
-
 from datetime import timedelta
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
+
+import requests
 from requests.models import Response
 
-from .utils import *
-from .types import *
-
 from .errors import CrunchyrollError, LoginError
+from .types import *
+from .utils import *
+
 
 class Crunchyroll:
     """Initialize Crunchyroll Client
-    
+
     Parameters:
         email (``str``):
             Email or username of the account
@@ -26,12 +26,9 @@ class Crunchyroll:
             Proxy for Crunchyroll
             E.g.: {"http": ...}
     """
+
     def __init__(
-        self,
-        email: str,
-        password: str,
-        locale: str="en-US",
-        proxy: dict=None
+        self, email: str, password: str, locale: str = "en-US", proxy: dict = None
     ) -> None:
         self.http = requests.Session()
         if proxy:
@@ -76,10 +73,7 @@ class Crunchyroll:
             }
 
         r = self.http.request(
-            method="POST",
-            url=TOKEN_ENDPOINT,
-            headers=headers,
-            data=data
+            method="POST", url=TOKEN_ENDPOINT, headers=headers, data=data
         )
         r_json = self._get_json(r)
 
@@ -89,60 +83,49 @@ class Crunchyroll:
         access_token = r_json["access_token"]
         token_type = r_json["token_type"]
         account_auth = {"Authorization": f"{token_type} {access_token}"}
-        
+
         account_data = dict()
         account_data.update(r_json)
         self.account_data = AccountData({})
         self.api_headers.update(account_auth)
 
-        r = self._make_request(
-            method="GET",
-            url=INDEX_ENDPOINT
-        )
+        r = self._make_request(method="GET", url=INDEX_ENDPOINT)
         account_data.update(r)
 
-        r = self._make_request(
-            method="GET",
-            url=PROFILE_ENDPOINT
-        )
+        r = self._make_request(method="GET", url=PROFILE_ENDPOINT)
         account_data.update(r)
 
-        account_data["expires"] = date_to_str(get_date() + timedelta(seconds=account_data["expires_in"]))
+        account_data["expires"] = date_to_str(
+            get_date() + timedelta(seconds=account_data["expires_in"])
+        )
         self.account_data = AccountData(account_data)
 
     def _make_request(
         self,
         method: str,
         url: str,
-        headers: Dict=dict(),
-        params: Dict=dict(),
-        data=None
+        headers: Dict = dict(),
+        params: Dict = dict(),
+        data=None,
     ) -> Optional[Dict]:
         if self.account_data:
             if expiration := self.account_data.expires:
                 current_time = get_date()
                 if current_time > str_to_date(expiration):
                     self._create_session(refresh=True)
-            params.update({
-                "Policy": self.account_data.cms.policy,
-                "Signature": self.account_data.cms.signature,
-                "Key-Pair-Id": self.account_data.cms.key_pair_id
-            })
+            params.update(
+                {
+                    "Policy": self.account_data.cms.policy,
+                    "Signature": self.account_data.cms.signature,
+                    "Key-Pair-Id": self.account_data.cms.key_pair_id,
+                }
+            )
         headers.update(self.api_headers)
-        r = self.http.request(
-            method,
-            url,
-            headers=headers,
-            params=params,
-            data=data
-        )
+        r = self.http.request(method, url, headers=headers, params=params, data=data)
         return self._get_json(r)
 
     def search(
-        self,
-        query: str,
-        max_results: int=6,
-        raw_json=False
+        self, query: str, max_results: int = 6, raw_json=False
     ) -> Optional[List[Collection]]:
         """Search series
 
@@ -159,19 +142,15 @@ class Crunchyroll:
         r = self._make_request(
             method="GET",
             url=SEARCH_ENDPOINT,
-            params = {
-                "q": query,
-                "n": str(max_results),
-                "locale": self.locale
-            }
+            params={"q": query, "n": str(max_results), "locale": self.locale},
         )
-        return [Collection(collection) for collection in r.get("items")] if not raw_json else r
+        return (
+            [Collection(collection) for collection in r.get("items")]
+            if not raw_json
+            else r
+        )
 
-    def get_series(
-        self,
-        series_id: str,
-        raw_json=False
-    ) -> Optional[Series]:
+    def get_series(self, series_id: str, raw_json=False) -> Optional[Series]:
         """Get info about a series
 
         Parameters:
@@ -184,15 +163,11 @@ class Crunchyroll:
         r = self._make_request(
             method="GET",
             url=SERIES_ENDPOINT.format(self.account_data.cms.bucket, series_id),
-            params = {"locale": self.locale}
+            params={"locale": self.locale},
         )
         return Series(r) if not raw_json else r
-        
-    def get_seasons(
-        self,
-        series_id: str,
-        raw_json=False
-    ) -> Optional[List[Season]]:
+
+    def get_seasons(self, series_id: str, raw_json=False) -> Optional[List[Season]]:
         """Get seasons of a series
 
         Parameters:
@@ -205,18 +180,11 @@ class Crunchyroll:
         r = self._make_request(
             method="GET",
             url=SEASONS_ENDPOINT.format(self.account_data.cms.bucket),
-            params = {
-                "series_id": series_id,
-                "locale": self.locale
-            }
+            params={"series_id": series_id, "locale": self.locale},
         )
         return [Season(season) for season in r.get("items")] if not raw_json else r
 
-    def get_episodes(
-        self,
-        season_id: str,
-        raw_json=False
-    ) -> Optional[List[Episode]]:
+    def get_episodes(self, season_id: str, raw_json=False) -> Optional[List[Episode]]:
         """Get episodes of a series (from season)
 
         Parameters:
@@ -229,18 +197,11 @@ class Crunchyroll:
         r = self._make_request(
             method="GET",
             url=EPISODES_ENDPOINT.format(self.account_data.cms.bucket),
-            params = {
-                "season_id": season_id,
-                "locale": self.locale
-            }
+            params={"season_id": season_id, "locale": self.locale},
         )
         return [Episode(episode) for episode in r.get("items")] if not raw_json else r
 
-    def get_streams(
-        self,
-        episode: Episode,
-        raw_json=False
-    ) -> Optional[StreamsInfo]:
+    def get_streams(self, episode: Episode, raw_json=False) -> Optional[StreamsInfo]:
         """Get streams from an episode
 
         Parameters:
@@ -250,23 +211,22 @@ class Crunchyroll:
         Returns:
             ``StreamsInfo``: On success, ``StreamsInfo`` object is returned
         """
-        stream_id = re.search(r"videos\/(.+?)\/streams", episode.links.streams.href).group(1)
+        stream_id = re.search(
+            r"videos\/(.+?)\/streams", episode.links.streams.href
+        ).group(1)
         r = self._make_request(
             method="GET",
             url=STREAMS_ENDPOINT.format(self.account_data.cms.bucket, stream_id),
-            params = {"locale": self.locale}
+            params={"locale": self.locale},
         )
-        
+
         # Fix empty key in video streams
         fixup(r)
-    
+
         return StreamsInfo(r) if not raw_json else r
 
     def get_similar(
-        self,
-        series_id: str,
-        max_results: int=6,
-        raw_json=False
+        self, series_id: str, max_results: int = 6, raw_json=False
     ) -> Optional[List[Panel]]:
         """Get similar series
 
@@ -283,19 +243,11 @@ class Crunchyroll:
         r = self._make_request(
             method="GET",
             url=SIMILAR_ENDPOINT.format(self["account_id"]),
-            params = {
-                "guid": series_id,
-                "n": str(max_results),
-                "locale": self.locale
-            }
+            params={"guid": series_id, "n": str(max_results), "locale": self.locale},
         )
         return [Panel(panel) for panel in r.get("items")] if not raw_json else r
 
-    def news_feed(
-        self,
-        max_results: int=6,
-        raw_json=False
-    ) -> Optional[NewsFeed]:
+    def news_feed(self, max_results: int = 6, raw_json=False) -> Optional[NewsFeed]:
         """Get news feed
 
         Parameters:
@@ -309,18 +261,12 @@ class Crunchyroll:
         r = self._make_request(
             method="GET",
             url=NEWSFEED_ENDPOINT,
-            params = {
-                "n": str(max_results),
-                "locale": self.locale
-            }
+            params={"n": str(max_results), "locale": self.locale},
         )
         return NewsFeed(r) if not raw_json else r
 
     def browse(
-        self,
-        sort_by: str = "newly_added",
-        max_results: int=6,
-        raw_json=False
+        self, sort_by: str = "newly_added", max_results: int = 6, raw_json=False
     ) -> Optional[List[Panel]]:
         """Browse Crunchyroll catalog
 
@@ -338,13 +284,9 @@ class Crunchyroll:
         r = self._make_request(
             method="GET",
             url=BROWSE_ENDPOINT,
-            params = {
-                "sort_by": sort_by,
-                "n": str(max_results),
-                "locale": self.locale
-            }
+            params={"sort_by": sort_by, "n": str(max_results), "locale": self.locale},
         )
-        return [Panel(panel) for panel in  r.get("items")] if not raw_json else r
+        return [Panel(panel) for panel in r.get("items")] if not raw_json else r
 
     def get_formats(self, url: str) -> Optional[List[PlaylistItem]]:
         """Get formats in a playlist
@@ -362,10 +304,12 @@ class Crunchyroll:
         for i, line in enumerate(lines, 1):
             regesp = re.match(PLAYLIST_REG, line.strip())
             if regesp:
-                formats.append({
-                    "url": lines[i].strip(),
-                    "bandwidth": int(regesp.group(1)),
-                    "width": int(regesp.group(2)),
-                    "height": int(regesp.group(3))
-                })
+                formats.append(
+                    {
+                        "url": lines[i].strip(),
+                        "bandwidth": int(regesp.group(1)),
+                        "width": int(regesp.group(2)),
+                        "height": int(regesp.group(3)),
+                    }
+                )
         return [PlaylistItem(frmt) for frmt in formats]

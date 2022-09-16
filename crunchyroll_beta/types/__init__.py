@@ -1,9 +1,11 @@
-from typing import Dict, List
 from json import dumps
+from typing import Dict, List
+
 
 class Meta(type, metaclass=type("", (type,), {"__str__": lambda _: "~hi"})):
     def __str__(self):
         return f"<class 'crunchyroll_beta.types.{self.__name__}'>"
+
 
 class Object(metaclass=Meta):
     @staticmethod
@@ -18,11 +20,12 @@ class Object(metaclass=Meta):
                 )
                 for attr in filter(lambda x: not x.startswith("_"), obj.__dict__)
                 if getattr(obj, attr) is not None
-            }
+            },
         }
 
     def __str__(self) -> str:
         return dumps(self, indent=4, default=Object.default, ensure_ascii=False)
+
 
 class CMS(Object):
     def __init__(self, data: dict):
@@ -30,13 +33,14 @@ class CMS(Object):
         self.policy: str = data.get("policy")
         self.signature: str = data.get("signature")
         self.key_pair_id: str = data.get("key_pair_id")
-    
+
+
 class AccountData(Object):
     def __init__(self, data: dict):
         self.access_token: str = data.get("access_token")
         self.refresh_token: str = data.get("refresh_token")
         self.expires: str = data.get("expires")
-        self.token_type: str =  data.get("token_type")
+        self.token_type: str = data.get("token_type")
         self.scope: str = data.get("scope")
         self.contry: str = data.get("country")
         self.account_id: str = data.get("account_id")
@@ -48,8 +52,11 @@ class AccountData(Object):
         self.email: str = data.get("email")
         self.maturity_rating: str = data.get("maturity_rating")
         self.account_language: str = data.get("preferred_communication_language")
-        self.default_subtitles_language: str = data.get("preferred_communication_language")
+        self.default_subtitles_language: str = data.get(
+            "preferred_communication_language"
+        )
         self.username: str = data.get("username")
+
 
 class PlaylistItem(Object):
     def __init__(self, data: dict):
@@ -58,6 +65,7 @@ class PlaylistItem(Object):
         self.width: int = data.get("width")
         self.height: int = data.get("height")
 
+
 class Image(Object):
     def __init__(self, data: dict):
         self.width: int = data.get("width")
@@ -65,19 +73,29 @@ class Image(Object):
         self.type: str = data.get("type")
         self.source: str = data.get("source")
 
+
 class Images(Object):
     def __init__(self, data: dict):
-        self.poster_tall: List[Image] = [Image(item) for item in data.get("poster_tall", [[]])[0]]
-        self.poster_wide: List[Image] = [Image(item) for item in data.get("poster_wide", [[]])[0]]
-        self.thumbnail: List[Image] = [Image(item) for item in data.get("thumbnail", [[]])[0]]
+        self.poster_tall: List[Image] = [
+            Image(item) for item in data.get("poster_tall", [[]])[0]
+        ]
+        self.poster_wide: List[Image] = [
+            Image(item) for item in data.get("poster_wide", [[]])[0]
+        ]
+        self.thumbnail: List[Image] = [
+            Image(item) for item in data.get("thumbnail", [[]])[0]
+        ]
+
 
 class SearchMetadata(Object):
     def __init__(self, data: dict):
         self.score: int = data.get("score")
 
+
 class Link(Object):
     def __init__(self, data: dict):
         self.href: str = data.get("href")
+
 
 class NewsItems(Object):
     def __init__(self, data: dict):
@@ -88,10 +106,14 @@ class NewsItems(Object):
         self.publish_date: str = data.get("publish_date")
         self.description: str = data.get("description")
 
+
 class News(Object):
     def __init__(self, data: dict):
         self.total: int = data.get("total")
-        self.items: List[NewsItems] = [NewsItems(item) for item in data.get("items", [])]
+        self.items: List[NewsItems] = [
+            NewsItems(item) for item in data.get("items", [])
+        ]
+
 
 class Series(Object):
     def __init__(self, data: dict):
@@ -119,6 +141,7 @@ class Series(Object):
         self.seo_description: str = data.get("seo_description")
         self.availability_notes: str = data.get("availability_notes")
 
+
 class Panel(Object):
     def __init__(self, data: dict):
         self.channel_id: str = data.get("channel_id")
@@ -133,10 +156,13 @@ class Panel(Object):
         self.new_content: bool = data.get("new_content")
         self.promo_description: str = data.get("promo_description")
         self.promo_title: str = data.get("promo_title")
-        self.search_metadata: SearchMetadata = SearchMetadata(data.get("search_metadata", {}))
+        self.search_metadata: SearchMetadata = SearchMetadata(
+            data.get("search_metadata", {})
+        )
         self.slug: str = data.get("slug")
         self.slug_title: str = data.get("slug_title")
         self.title: str = data.get("title")
+
 
 class Collection(Object):
     def __init__(self, data: dict):
@@ -144,10 +170,12 @@ class Collection(Object):
         self.total: int = data.get("total")
         self.items: List[Panel] = [Panel(item) for item in data.get("items", [])]
 
+
 class NewsFeed(Object):
     def __init__(self, data: dict):
         self.top_news: News = News(data.get("top_news", {}))
         self.latest_news: News = News(data.get("latest_news", {}))
+
 
 class Season(Object):
     def __init__(self, data: dict):
@@ -171,6 +199,7 @@ class Season(Object):
         self.seo_description: str = data.get("seo_description")
         self.availability_notes: str = data.get("availability_notes")
 
+
 class EpisodeLinks(Object):
     def __init__(self, data: dict):
         self.channel: Link = Link(data.get("episode/channel", {}))
@@ -178,6 +207,7 @@ class EpisodeLinks(Object):
         self.season: Link = Link(data.get("episode/season", {}))
         self.series: Link = Link(data.get("episode/series", {}))
         self.streams: Link = Link(data.get("streams", {}))
+
 
 class Episode(Object):
     def __init__(self, data: dict):
@@ -219,16 +249,19 @@ class Episode(Object):
         self.playback: str = data.get("playback")
         self.availability_notes: str = data.get("availability_notes")
 
+
 class StreamData(Object):
     def __init__(self, data: dict):
         self.hardsub_locale: str = data.get("hardsub_locale")
         self.url: str = data.get("url")
+
 
 class SubtitleData(Object):
     def __init__(self, data: dict):
         self.locale: str = data.get("locale")
         self.url: str = data.get("url")
         self.format: str = data.get("format")
+
 
 class VideoFormat(Object):
     def __init__(self, data: dict):
@@ -244,6 +277,7 @@ class VideoFormat(Object):
         self.it: StreamData = StreamData(data.get("it-IT", {}))
         self.ru: StreamData = StreamData(data.get("ru-RU", {}))
 
+
 class Subtitles(Object):
     def __init__(self, data: dict):
         self.en: SubtitleData = SubtitleData(data.get("en-US", {}))
@@ -257,18 +291,34 @@ class Subtitles(Object):
         self.it: SubtitleData = SubtitleData(data.get("it-IT", {}))
         self.ru: SubtitleData = SubtitleData(data.get("ru-RU", {}))
 
+
 class Streams(Object):
     def __init__(self, data: dict):
         self.adaptive_dash: VideoFormat = VideoFormat(data.get("adaptive_dash", {}))
         self.adaptive_hls: VideoFormat = VideoFormat(data.get("adaptive_hls", {}))
-        self.drm_adaptive_dash: VideoFormat = VideoFormat(data.get("drm_adaptive_dash", {}))
-        self.drm_adaptive_hls: VideoFormat = VideoFormat(data.get("drm_adaptive_hls", {}))
-        self.drm_multitrack_adaptive_hls_v2: VideoFormat = VideoFormat(data.get("drm_multitrack_adaptive_hls_v2", {}))
-        self.multitrack_adaptive_hls_v2: VideoFormat = VideoFormat(data.get("multitrack_adaptive_hls_v2", {}))
-        self.vo_adaptive_dash: VideoFormat = VideoFormat(data.get("vo_adaptive_dash", {}))
+        self.drm_adaptive_dash: VideoFormat = VideoFormat(
+            data.get("drm_adaptive_dash", {})
+        )
+        self.drm_adaptive_hls: VideoFormat = VideoFormat(
+            data.get("drm_adaptive_hls", {})
+        )
+        self.drm_multitrack_adaptive_hls_v2: VideoFormat = VideoFormat(
+            data.get("drm_multitrack_adaptive_hls_v2", {})
+        )
+        self.multitrack_adaptive_hls_v2: VideoFormat = VideoFormat(
+            data.get("multitrack_adaptive_hls_v2", {})
+        )
+        self.vo_adaptive_dash: VideoFormat = VideoFormat(
+            data.get("vo_adaptive_dash", {})
+        )
         self.vo_adaptive_hls: VideoFormat = VideoFormat(data.get("vo_adaptive_hls", {}))
-        self.vo_drm_adaptive_dash: VideoFormat = VideoFormat(data.get("vo_drm_adaptive_dash", {}))
-        self.vo_drm_adaptive_hls: VideoFormat = VideoFormat(data.get("vo_drm_adaptive_hls", {}))
+        self.vo_drm_adaptive_dash: VideoFormat = VideoFormat(
+            data.get("vo_drm_adaptive_dash", {})
+        )
+        self.vo_drm_adaptive_hls: VideoFormat = VideoFormat(
+            data.get("vo_drm_adaptive_hls", {})
+        )
+
 
 class StreamsInfo(Object):
     def __init__(self, data: dict):
