@@ -313,3 +313,18 @@ class Crunchyroll:
                     }
                 )
         return [PlaylistItem(frmt) for frmt in formats]
+
+    def get_objects(self, object_id: str, raw_json=False) -> Optional[List[Panel]]:
+        """Get object
+        Parameters:
+            object_id (``str``):
+                IDs of the series/episode/season/... multiple can be supplied an the seperated by comma
+        Returns:
+            ``List``: On success, list of ``Panel`` is returned
+        """
+        r = self._make_request(
+            method="GET",
+            url=OBJECTS_ENDPOINT.format(self.account_data.cms.bucket, object_id),
+            params={"locale": self.locale},
+        )
+        return [Panel(panel) for panel in r.get("items")] if not raw_json else r
