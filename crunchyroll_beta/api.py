@@ -109,7 +109,8 @@ class Crunchyroll:
         data=None,
     ) -> Optional[Dict]:
         if self.account_data:
-            if expiration := self.account_data.expires:
+            expiration = self.account_data.expires
+            if expiration:
                 current_time = get_date()
                 if current_time > str_to_date(expiration):
                     self._create_session(refresh=True)
