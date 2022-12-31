@@ -173,6 +173,8 @@ class SeriesMetadata(Object):
         self.series_launch_year: int = data.get("series_launch_year")
         self.subtitle_locales: List[str] = data.get("subtitle_locales", [])
         self.tenant_categories: List[str] = data.get("tenant_categories", [])
+        self.is_dubbed = data.get("is_dubbed")
+        self.is_subbed = data.get("is_subbed")
 
 class Collection(Object):
     def __init__(self, data: dict):
