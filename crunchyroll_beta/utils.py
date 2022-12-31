@@ -15,6 +15,9 @@ SIMILAR_ENDPOINT = "https://beta-api.crunchyroll.com/content/v1/{}/similar_to"
 NEWSFEED_ENDPOINT = "https://beta-api.crunchyroll.com/content/v1/news_feed"
 BROWSE_ENDPOINT = "https://beta-api.crunchyroll.com/content/v1/browse"
 OBJECTS_ENDPOINT = "https://beta-api.crunchyroll.com/cms/v2{}/objects/{}"
+WATCHLIST_ENDPOINT = "https://beta-api.crunchyroll.com/content/v1/{}/watchlist"
+CUSTOMLISTS_ENDPOINT = "https://beta-api.crunchyroll.com/content/v1/custom-lists/{}"
+CUSTOMLIST_ENDPOINT = "https://beta-api.crunchyroll.com/content/v1/custom-lists/{}/{}"
 
 AUTHORIZATION = (
     "Basic aHJobzlxM2F3dnNrMjJ1LXRzNWE6cHROOURteXRBU2Z6QjZvbXVsSzh6cUxzYTczVE1TY1k="

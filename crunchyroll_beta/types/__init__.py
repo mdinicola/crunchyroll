@@ -180,6 +180,24 @@ class Collection(Object):
         self.items: List[Panel] = [Panel(item) for item in data.get("items", [])]
 
 
+class CustomList(Object):
+    def __init__(self, data: dict):
+        self.list_id: str = data.get("list_id")
+        self.total: int = data.get("total")
+        self.title: str = data.get("title")
+        self.modified_at: str = data.get("modified_at")
+        self.is_public: bool = data.get("is_public")
+        self.items: List[CustomListItem] = [CustomListItem(item) for item in data.get("items", [])]
+
+
+class CustomListItem(Object):
+    def __init__(self, data: dict):
+        self.id: str = data.get("id")
+        self.list_id: str = data.get("list_id")
+        self.modified_at: str = data.get("modified_at")
+        self.panel: Panel = Panel(data.get("panel"))
+
+
 class NewsFeed(Object):
     def __init__(self, data: dict):
         self.top_news: News = News(data.get("top_news", {}))

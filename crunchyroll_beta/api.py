@@ -342,3 +342,27 @@ class Crunchyroll:
             params={"locale": self.locale},
         )
         return [Panel(panel) for panel in r.get("items")] if not raw_json else r
+
+
+    def get_watchlist(self, raw_json=False) -> Optional[CustomList]:
+        r = self._make_request(
+            method="GET",
+            url=WATCHLIST_ENDPOINT.format(self.account_data.account_id),
+        )
+        return CustomList(r) if not raw_json else r
+
+
+    def get_custom_lists(self, raw_json=False) -> Optional[List[CustomList]]:
+        r = self._make_request(
+            method="GET",
+            url=CUSTOMLISTS_ENDPOINT.format(self.account_data.account_id),
+        )
+        return [CustomList(custom_list) for custom_list in r.get("items")] if not raw_json else r
+
+    
+    def get_custom_list(self, list_id: str, raw_json=False) -> Optional[CustomList]:
+        r = self._make_request(
+            method="GET",
+            url=CUSTOMLIST_ENDPOINT.format(self.account_data.account_id, list_id),
+        )
+        return CustomList(r) if not raw_json else r
