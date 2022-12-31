@@ -167,6 +167,7 @@ class Panel(Object):
 class SeriesMetadata(Object):
     def __init__(self, data: dict):
         self.audio_locales: List[str] = data.get("audio_locales", [])
+        self.subtitle_locales: List[str] = data.get("subtitle_locales", [])
         self.episode_count: int = data.get("episode_count")
         self.season_count: int = data.get("season_count")
         self.series_launch_year: int = data.get("series_launch_year")
@@ -226,6 +227,8 @@ class Season(Object):
         self.seo_description: str = data.get("seo_description")
         self.availability_notes: str = data.get("availability_notes")
         self.audio_locale: str = data.get("audio_locale")
+        self.audio_locales: List[str] = data.get("audio_locales", [])
+        self.subtitle_locales: List[str] = data.get("subtitle_locales", [])
 
 class EpisodeLinks(Object):
     def __init__(self, data: dict):
@@ -275,6 +278,8 @@ class Episode(Object):
         self.subtitle_locales: List[str] = data.get("subtitle_locales", [])
         self.playback: str = data.get("playback")
         self.availability_notes: str = data.get("availability_notes")
+        self.audio_locales: List[str] = data.get("audio_locales", [])
+        self.subtitle_locales: List[str] = data.get("subtitle_locales", [])
 
 
 class StreamData(Object):
