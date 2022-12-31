@@ -271,13 +271,15 @@ class Crunchyroll:
         sort_by: str = "newly_added",
         max_results: int = 6,
         start_value: int = 0,
+        is_subbed: bool = None,
+        is_dubbed: bool = None,
         raw_json: bool = False,
     ) -> Optional[List[Panel]]:
         """Browse Crunchyroll catalog
 
         Parameters:
             sort_by (``str``, optional):
-                Sort by ``newly_added``, ``popularity`` or ``alphabetical``
+                Sort by ``newly_added`` or ``popularity``
                 Default to ``newly_added``
             max_results (``int``, optional):
                 Number of results to return
@@ -285,19 +287,32 @@ class Crunchyroll:
             start_value (``int``, optional):
                 Initial number to start with
                 Defaults to 0
+            is_subbed (``bool``, optional)
+                Return only subtitled results
+                Defaults to ``None``
+            is_dubbed (``bool``, optional)
+                Return only dubbed results
+                Defaults to ``None``
 
         Returns:
             ``List``: On success, list of ``Panel`` is returned
         """
+        request_params = {
+            "sort_by": sort_by,
+            "n": str(max_results),
+            "locale": self.locale,
+            "start": start_value,
+        }
+
+        if is_subbed is not None:
+            request_params["is_subbed"] = is_subbed
+        if is_dubbed is not None:
+            request_params["is_dubbed"] = is_dubbed
+
         r = self._make_request(
             method="GET",
             url=BROWSE_ENDPOINT,
-            params={
-                "sort_by": sort_by,
-                "n": str(max_results),
-                "locale": self.locale,
-                "start": start_value,
-            },
+            params=request_params,
         )
         return [Panel(panel) for panel in r.get("items")] if not raw_json else r
 
