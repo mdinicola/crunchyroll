@@ -278,10 +278,10 @@ class Episode(Object):
         self.is_premium_only: bool = data.get("is_premium_only")
         self.listing_id: str = data.get("listing_id")
         self.subtitle_locales: List[str] = data.get("subtitle_locales", [])
+        self.audio_locale: str = data.get("audio_locale")
         self.playback: str = data.get("playback")
         self.availability_notes: str = data.get("availability_notes")
-        self.audio_locales: List[str] = data.get("audio_locales", [])
-        self.subtitle_locales: List[str] = data.get("subtitle_locales", [])
+        self.upload_date: str = data.get("upload_date")
 
 
 class StreamData(Object):
