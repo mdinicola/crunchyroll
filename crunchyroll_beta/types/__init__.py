@@ -282,6 +282,7 @@ class Episode(Object):
         self.playback: str = data.get("playback")
         self.availability_notes: str = data.get("availability_notes")
         self.upload_date: str = data.get("upload_date")
+        self.premium_available_date: str = data.get("premium_available_date")
 
 
 class StreamData(Object):
